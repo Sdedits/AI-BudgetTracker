@@ -31,4 +31,19 @@ public class JwtUtil {
     private Key key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
+    
+    public String getUsernameFromToken(String token) {
+        return Jwts.parserBuilder().setSigningKey(key()).build()
+                   .parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(key()).build().parse(token);
+            return true;
+        } catch (Exception e) {
+            // You can log the specific error here if you want (e.g., token expired, invalid signature)
+            return false;
+        }
+    }
 }

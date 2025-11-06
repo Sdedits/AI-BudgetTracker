@@ -20,11 +20,29 @@ public class User {
     private String email;
 
     @Column(nullable = false)
-    private String password; 
+    private String password;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.USER;
+    
+    @Column
+    private Double monthlyIncome;
+    
+    @Column
+    private Double savings;
+    
+    @Column
+    private Double targetExpenses;
 
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.role = Role.USER;
+    }
+    
+    public enum Role {
+        USER, ADMIN
     }
 }

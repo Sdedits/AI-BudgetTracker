@@ -32,6 +32,13 @@ public class AuthService {
                 signUpRequest.getEmail(),
                 passwordEncoder.encode(signUpRequest.getPassword())
         );
+        
+        // Set role - default to USER if not provided
+        if (signUpRequest.getRole() != null) {
+            newUser.setRole(signUpRequest.getRole());
+        } else {
+            newUser.setRole(User.Role.USER);
+        }
 
         userRepository.save(newUser);
     }
