@@ -6,7 +6,7 @@ A comprehensive budget tracking application with user authentication, profile ma
 
 ### Authentication & Authorization
 - **JWT-based Authentication**: Secure user registration and login system
-- **Role-based Access Control**: User and Admin roles
+- **Role-based Access Control**: User, Admin, and Owner roles
 - **Protected Routes**: Secure access to sensitive pages
 
 ### Profile Management
@@ -29,6 +29,10 @@ A comprehensive budget tracking application with user authentication, profile ma
 - Total Income, Total Expenses, Current Balance, Savings
 - Recent transactions display
 - Financial goals tracking
+- **Analytics**: Visual representation of spending habits
+- **Budget Management**: Set and track monthly budgets
+- **Savings Goals**: Create and monitor progress towards financial targets
+- **Community Forum**: Discuss financial tips and strategies with other users
 
 ## Tech Stack
 
@@ -67,6 +71,7 @@ CREATE DATABASE user_auth_db;
 spring.datasource.url=jdbc:mysql://localhost:3306/user_auth_db
 spring.datasource.username=your_username
 spring.datasource.password=your_password
+app.owner.id=1  # Optional: Set the user ID that should be the Owner
 ```
 
 ## Backend Setup
@@ -123,6 +128,26 @@ The frontend will start on `http://localhost:5173`
 - `PUT /api/transactions/{id}` - Update a transaction (Protected)
 - `DELETE /api/transactions/{id}` - Delete a transaction (Protected)
 
+### Analytics
+- `GET /api/analytics/spending` - Get spending analysis
+- `GET /api/analytics/trends` - Get financial trends
+
+### Budget
+- `GET /api/budget` - Get current budget
+- `POST /api/budget` - Set new budget
+- `PUT /api/budget/{id}` - Update budget
+
+### Savings Goals
+- `GET /api/savings-goals` - List all savings goals
+- `POST /api/savings-goals` - Create a savings goal
+- `PUT /api/savings-goals/{id}` - Update a savings goal
+- `DELETE /api/savings-goals/{id}` - Delete a savings goal
+
+### Forum
+- `GET /api/forum/posts` - List forum posts
+- `POST /api/forum/posts` - Create a new post
+- `POST /api/forum/posts/{id}/comments` - Add a comment to a post
+
 ## Project Structure
 
 ```
@@ -137,6 +162,20 @@ aibudgettracker/
 │   │   ├── repository/      # User repository
 │   │   ├── service/         # Auth service
 │   │   └── util/            # JWT utility
+│   ├── analytics/
+│   │   └── controller/      # Analytics controller
+│   ├── budget/
+│   │   ├── controller/      # Budget controller
+│   │   ├── model/           # Budget entity
+│   │   └── repository/      # Budget repository
+│   ├── forum/
+│   │   ├── controller/      # Forum controller
+│   │   ├── model/           # Post/Comment entities
+│   │   └── repository/      # Forum repositories
+│   ├── savingsgoal/
+│   │   ├── controller/      # Savings Goal controller
+│   │   ├── model/           # Savings Goal entity
+│   │   └── repository/      # Savings Goal repository
 │   └── transaction/
 │       ├── controller/      # Transaction controller
 │       ├── dto/             # Transaction DTOs
@@ -178,6 +217,7 @@ aibudgettracker/
 - Error handling
 - Form validation
 - Beautiful transaction history
+- Show/Hide Password toggle
 
 ## Development Notes
 

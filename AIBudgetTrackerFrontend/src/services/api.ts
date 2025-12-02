@@ -1,17 +1,17 @@
 import axios from 'axios';
-import type { 
-  AuthResponse, 
-  LoginRequest, 
-  SignUpRequest, 
-  User, 
-  Transaction, 
-  TransactionRequest,
-  Budget,
-  BudgetRequest,
-  BudgetProgress,
-  SavingsGoal,
-  SavingsGoalRequest,
-  SavingsGoalProgress
+import type {
+    AuthResponse,
+    LoginRequest,
+    SignUpRequest,
+    User,
+    Transaction,
+    TransactionRequest,
+    Budget,
+    BudgetRequest,
+    BudgetProgress,
+    SavingsGoal,
+    SavingsGoalRequest,
+    SavingsGoalProgress
 } from '../types/index';
 
 const api = axios.create({
@@ -120,14 +120,14 @@ export const getMonthlySpending = (year: number) => {
 };
 
 export const getCategorySpending = (month?: number, year?: number) => {
-    return api.get('/analytics/category-spending', { 
-        params: { month, year } 
+    return api.get('/analytics/category-spending', {
+        params: { month, year }
     });
 };
 
 export const getIncomeVsExpenses = (startDate: string, endDate: string) => {
-    return api.get('/analytics/income-vs-expenses', { 
-        params: { startDate, endDate } 
+    return api.get('/analytics/income-vs-expenses', {
+        params: { startDate, endDate }
     });
 };
 
@@ -146,6 +146,10 @@ export const predictNextMonthExpenses = (months = 12) => {
 // Admin APIs
 export const getAllUsers = () => {
     return api.get('/admin/users');
+};
+
+export const getAllAdmins = () => {
+    return api.get('/admin/admins');
 };
 
 export const banUser = (id: number) => {

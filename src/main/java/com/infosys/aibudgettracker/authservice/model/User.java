@@ -20,18 +20,19 @@ public class User {
     private String email;
 
     @Column(nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private String password;
-    
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.USER;
-    
+
     @Column
     private Double monthlyIncome;
-    
+
     @Column
     private Double savings;
-    
+
     @Column
     private Double targetExpenses;
 
@@ -40,7 +41,7 @@ public class User {
 
     @Column
     private String lastName;
-    
+
     @Column(nullable = false)
     private boolean banned = false;
 
@@ -53,7 +54,7 @@ public class User {
         this.password = password;
         this.role = Role.USER;
     }
-    
+
     public enum Role {
         USER, ADMIN, OWNER
     }

@@ -22,13 +22,15 @@ public class AdminController {
     @Autowired
     private UserRepository userRepository;
 
-    // Owner id will be set in application properties and read as a long. The owner can manage admins.
+    // Owner id will be set in application properties and read as a long. The owner
+    // can manage admins.
     @org.springframework.beans.factory.annotation.Value("${app.owner.id:0}")
     private Long ownerId;
 
     private boolean isAdminOrOwner() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) return false;
+        if (authentication == null)
+            return false;
         String username = authentication.getName();
         return userRepository.findByUsername(username)
                 .map(u -> u.getRole() == User.Role.ADMIN || u.getRole() == User.Role.OWNER)
@@ -37,23 +39,34 @@ public class AdminController {
 
     private boolean isOwner() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) return false;
+        if (authentication == null)
+            return false;
         String username = authentication.getName();
         return userRepository.findByUsername(username)
-            .map(u -> u.getId().equals(ownerId) || u.getRole() == User.Role.OWNER)
-            .orElse(false);
+                .map(u -> u.getId().equals(ownerId) || u.getRole() == User.Role.OWNER)
+                .orElse(false);
     }
 
     @GetMapping("/users")
     public ResponseEntity<?> listUsers() {
-        if (!isAdminOrOwner()) return ResponseEntity.status(403).body("Forbidden");
+        if (!isAdminOrOwner())
+            return ResponseEntity.status(403).body("Forbidden");
         List<User> users = adminService.listAllUsers();
         return ResponseEntity.ok(users);
     }
 
+    @GetMapping("/admins")
+    public ResponseEntity<?> listAdmins() {
+        if (!isOwner())
+            return ResponseEntity.status(403).body("Forbidden");
+        List<User> admins = adminService.getAllAdmins();
+        return ResponseEntity.ok(admins);
+    }
+
     @PostMapping("/users/{id}/ban")
     public ResponseEntity<?> banUser(@PathVariable Long id) {
-        if (!isAdminOrOwner()) return ResponseEntity.status(403).body("Forbidden");
+        if (!isAdminOrOwner())
+            return ResponseEntity.status(403).body("Forbidden");
         return adminService.banUser(id)
                 .map(u -> ResponseEntity.ok(u))
                 .orElse(ResponseEntity.notFound().build());
@@ -61,7 +74,8 @@ public class AdminController {
 
     @PostMapping("/users/{id}/unban")
     public ResponseEntity<?> unbanUser(@PathVariable Long id) {
-        if (!isAdminOrOwner()) return ResponseEntity.status(403).body("Forbidden");
+        if (!isAdminOrOwner())
+            return ResponseEntity.status(403).body("Forbidden");
         return adminService.unbanUser(id)
                 .map(u -> ResponseEntity.ok(u))
                 .orElse(ResponseEntity.notFound().build());
@@ -69,13 +83,15 @@ public class AdminController {
 
     @GetMapping("/admin-requests")
     public ResponseEntity<?> listAdminRequests() {
-        if (!isAdminOrOwner()) return ResponseEntity.status(403).body("Forbidden");
+        if (!isAdminOrOwner())
+            return ResponseEntity.status(403).body("Forbidden");
         return ResponseEntity.ok(adminService.listPendingAdminRequests());
     }
 
     @PostMapping("/admin-requests/{id}/approve")
     public ResponseEntity<?> approveAdmin(@PathVariable Long id) {
-        if (!isOwner()) return ResponseEntity.status(403).body("Only owner can approve admins");
+        if (!isOwner())
+            return ResponseEntity.status(403).body("Only owner can approve admins");
         return adminService.approveAdmin(id)
                 .map(u -> ResponseEntity.ok(u))
                 .orElse(ResponseEntity.notFound().build());
@@ -83,7 +99,8 @@ public class AdminController {
 
     @PostMapping("/admin-requests/{id}/revoke")
     public ResponseEntity<?> revokeAdmin(@PathVariable Long id) {
-        if (!isOwner()) return ResponseEntity.status(403).body("Only owner can revoke admins");
+        if (!isOwner())
+            return ResponseEntity.status(403).body("Only owner can revoke admins");
         return adminService.revokeAdmin(id)
                 .map(u -> ResponseEntity.ok(u))
                 .orElse(ResponseEntity.notFound().build());

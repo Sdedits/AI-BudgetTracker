@@ -1,31 +1,63 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { LogIn, Wallet } from 'lucide-react';
+import { LogIn, Wallet, Eye, EyeOff } from 'lucide-react';
 
+/**
+ * Login Component
+ * 
+ * Handles user authentication by collecting username and password.
+ * Uses the useAuth hook to communicate with the backend authentication service.
+ * Displays error messages for invalid credentials or banned accounts.
+ */
 const Login = () => {
+    // State for form inputs
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    
+    // State for error handling
+    const [errors, setErrors] = useState<{ username?: string; password?: string; general?: string }>({});
+    
+    // Auth hook for login functionality
     const { login } = useAuth();
 
     const friendlyMessage = (raw: string) => {
         const lower = raw.toLowerCase();
         if (lower.includes('banned')) return 'Your account has been banned. Please contact support if you think this is a mistake.';
         if (lower.includes('admin approval')) return 'Your admin account is pending owner approval. You will be notified once it is approved.';
-        if (lower.includes('invalid password') || lower.includes('not found') || lower.includes('username')) return 'Invalid username or password.';
+        if (lower.includes('invalid password') || lower.includes('not found') || (lower.includes('username') && !lower.includes('required'))) return 'Invalid username or password.';
         // fallback: strip any leading "Error:" text
         return raw.replace(/^Error:\s*/i, '');
     };
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        setErrorMessage(null);
+        setErrors({});
+        
+        const newErrors: { username?: string; password?: string } = {};
+        if (!username.trim()) newErrors.username = 'Username is required';
+        if (!password.trim()) newErrors.password = 'Password is required';
+        
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
         try {
             await login({ username, password });
         } catch (err: any) {
             const raw = (err && err.message) ? err.message : 'Login failed. Please try again.';
-            setErrorMessage(friendlyMessage(raw));
+            const msg = friendlyMessage(raw);
+            
+            // Try to map backend errors to fields if possible
+            if (msg.toLowerCase().includes('password')) {
+                setErrors({ password: msg });
+            } else if (msg.toLowerCase().includes('username')) {
+                setErrors({ username: msg });
+            } else {
+                setErrors({ general: msg });
+            }
         }
     };
 
@@ -45,7 +77,7 @@ const Login = () => {
                 
                 <div className="bg-white rounded-2xl shadow-xl p-8">
                     <h2 className="text-2xl font-bold text-gray-900 mb-6">Login</h2>
-                    <form onSubmit={handleLogin} className="space-y-6">
+                    <form onSubmit={handleLogin} className="space-y-6" noValidate>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Username
@@ -54,24 +86,47 @@ const Login = () => {
                                 type="text" 
                                 placeholder="Enter your username" 
                                 value={username} 
-                                onChange={(e) => setUsername(e.target.value)}
-                                required 
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                onChange={(e) => {
+                                    setUsername(e.target.value);
+                                    if (errors.username) setErrors({ ...errors, username: undefined });
+                                }}
+                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                                    errors.username ? 'border-red-500' : 'border-gray-300'
+                                }`}
                             />
+                            {errors.username && (
+                                <p className="text-sm text-red-600 mt-1">{errors.username}</p>
+                            )}
                         </div>
                         
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Password
                             </label>
-                            <input 
-                                type="password" 
-                                placeholder="Enter your password" 
-                                value={password} 
-                                onChange={(e) => setPassword(e.target.value)} 
-                                required 
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                            />
+                            <div className="relative">
+                                <input 
+                                    type={showPassword ? "text" : "password"} 
+                                    placeholder="Enter your password" 
+                                    value={password} 
+                                    onChange={(e) => {
+                                        setPassword(e.target.value);
+                                        if (errors.password) setErrors({ ...errors, password: undefined });
+                                    }}
+                                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                                        errors.password ? 'border-red-500' : 'border-gray-300'
+                                    }`}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                                >
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                </button>
+                            </div>
+                            {errors.password && (
+                                <p className="text-sm text-red-600 mt-1">{errors.password}</p>
+                            )}
                         </div>
                         
                         <button 
@@ -81,8 +136,8 @@ const Login = () => {
                             <LogIn size={20} />
                             Login
                         </button>
-                        {errorMessage && (
-                            <p className="text-center text-sm text-red-600 mt-3" role="alert">{errorMessage}</p>
+                        {errors.general && (
+                            <p className="text-center text-sm text-red-600 mt-3" role="alert">{errors.general}</p>
                         )}
                     </form>
                     

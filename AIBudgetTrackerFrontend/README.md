@@ -1,73 +1,88 @@
-# React + TypeScript + Vite
+# AI Budget Tracker - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, responsive web application for tracking personal finances, built with React, TypeScript, and TailwindCSS.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Authentication
+- **Secure Login/Signup**: JWT-based authentication
+- **Role-based Access**: User, Admin, and Owner dashboards
+- **Show/Hide Password**: Toggle visibility for password fields
 
-## React Compiler
+### Dashboard
+- **Financial Overview**: Real-time summary of income, expenses, and savings
+- **Visual Statistics**: Clear display of financial health
+- **Recent Activity**: Quick view of latest transactions
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Transaction Management
+- **Add/Edit/Delete**: Full control over income and expense records
+- **Categorization**: Organize transactions by type (Food, Rent, Salary, etc.)
+- **Filtering**: Search and filter transaction history
 
-## Expanding the ESLint configuration
+### User Management (Admin/Owner)
+- **User List**: View all registered users
+- **Ban/Unban**: Manage user access (Owner protected)
+- **Role Management**: Admin approval workflow
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tech Stack
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Framework**: [React 19](https://react.dev/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **Styling**: [TailwindCSS](https://tailwindcss.com/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Routing**: [React Router DOM](https://reactrouter.com/)
+- **HTTP Client**: [Axios](https://axios-http.com/)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Prerequisites
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Node.js 18 or higher
+- npm or yarn
+
+## Setup & Installation
+
+1. **Navigate to the frontend directory**:
+   ```bash
+   cd AIBudgetTrackerFrontend
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install --legacy-peer-deps
+   ```
+
+3. **Start the development server**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Access the application**:
+   Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+## Project Structure
+
+```
+src/
+├── components/      # Reusable UI components (Navbar, Cards, etc.)
+├── hooks/           # Custom React hooks (useAuth, etc.)
+├── pages/           # Main page components (Login, Dashboard, etc.)
+├── services/        # API integration services
+├── types/           # TypeScript interface definitions
+├── App.tsx          # Main application component
+└── main.tsx         # Entry point
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Scripts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `npm run dev`: Start development server
+- `npm run build`: Build for production
+- `npm run lint`: Run ESLint
+- `npm run preview`: Preview production build
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request

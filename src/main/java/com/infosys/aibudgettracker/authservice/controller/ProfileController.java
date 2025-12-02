@@ -17,6 +17,9 @@ public class ProfileController {
     @Autowired
     private UserRepository userRepository;
 
+    @org.springframework.beans.factory.annotation.Value("${app.owner.id:0}")
+    private Long ownerId;
+
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -24,27 +27,33 @@ public class ProfileController {
 
         return userRepository.findByUsername(currentUsername)
                 .map(user -> {
+                    User.Role role = user.getRole();
+                    // If user ID matches the configured owner ID, force role to OWNER in the
+                    // response
+                    if (user.getId() != null && user.getId().equals(ownerId)) {
+                        role = User.Role.OWNER;
+                    }
+
                     UserProfileDto userProfile = new UserProfileDto(
-                        user.getId(),
-                        user.getUsername(),
-                        user.getEmail(),
-                        user.getRole(),
-                        user.getMonthlyIncome(),
-                        user.getSavings(),
-                        user.getTargetExpenses(),
-                        user.getFirstName(),
-                        user.getLastName()
-                    );
+                            user.getId(),
+                            user.getUsername(),
+                            user.getEmail(),
+                            role,
+                            user.getMonthlyIncome(),
+                            user.getSavings(),
+                            user.getTargetExpenses(),
+                            user.getFirstName(),
+                            user.getLastName());
                     return ResponseEntity.ok(userProfile);
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     @PutMapping("/profile")
     public ResponseEntity<?> updateProfile(@RequestBody UserProfileDto profileDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = authentication.getName();
-        
+
         return userRepository.findByUsername(currentUsername)
                 .map(user -> {
                     // allow updating username if not taken
@@ -60,18 +69,17 @@ public class ProfileController {
                     user.setFirstName(profileDto.getFirstName());
                     user.setLastName(profileDto.getLastName());
                     User updatedUser = userRepository.save(user);
-                    
+
                     UserProfileDto updatedProfile = new UserProfileDto(
-                        updatedUser.getId(),
-                        updatedUser.getUsername(),
-                        updatedUser.getEmail(),
-                        updatedUser.getRole(),
-                        updatedUser.getMonthlyIncome(),
-                        updatedUser.getSavings(),
-                        updatedUser.getTargetExpenses(),
-                        updatedUser.getFirstName(),
-                        updatedUser.getLastName()
-                    );
+                            updatedUser.getId(),
+                            updatedUser.getUsername(),
+                            updatedUser.getEmail(),
+                            updatedUser.getRole(),
+                            updatedUser.getMonthlyIncome(),
+                            updatedUser.getSavings(),
+                            updatedUser.getTargetExpenses(),
+                            updatedUser.getFirstName(),
+                            updatedUser.getLastName());
                     return ResponseEntity.ok(updatedProfile);
                 })
                 .orElse(ResponseEntity.notFound().build());

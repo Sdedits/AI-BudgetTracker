@@ -16,6 +16,8 @@ import Analytics from './pages/Analytics';
 import Export from './pages/Export';
 import Forum from './pages/Forum';
 import Admin from './pages/Admin';
+import ManageAdmins from './pages/ManageAdmins';
+import ManageUsers from './pages/ManageUsers';
 
 function App() {
     return (
@@ -60,6 +62,12 @@ function App() {
                         </Route>
                         <Route path="/admin" element={<ProtectedRoute />}>
                             <Route path="" element={<Admin />} />
+                        </Route>
+                        <Route path="/admin/admins" element={<ProtectedRoute />}>
+                            <Route path="" element={<ManageAdmins />} />
+                        </Route>
+                        <Route path="/admin/users" element={<ProtectedRoute />}>
+                            <Route path="" element={<ManageUsers />} />
                         </Route>
                     </Routes>
                 </main>
