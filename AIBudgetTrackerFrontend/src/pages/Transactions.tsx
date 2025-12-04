@@ -41,6 +41,12 @@ const Transactions = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            // Validate amount
+            if (formData.amount <= 0) {
+                alert('Amount must be greater than zero');
+                return;
+            }
+            
             // Use custom category if "Other" is selected and custom category is provided
             const finalCategory = showCustomCategory && customCategory.trim() 
                 ? customCategory.trim() 

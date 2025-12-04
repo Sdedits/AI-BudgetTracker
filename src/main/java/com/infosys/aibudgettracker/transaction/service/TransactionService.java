@@ -17,6 +17,11 @@ public class TransactionService {
     private TransactionRepository transactionRepository;
     
     public TransactionResponse createTransaction(Long userId, TransactionRequest request) {
+        // Validate amount
+        if (request.getAmount() == null || request.getAmount() <= 0) {
+            throw new RuntimeException("Transaction amount must be greater than zero");
+        }
+        
         Transaction transaction = new Transaction();
         transaction.setUserId(userId);
         transaction.setType(request.getType());
@@ -42,6 +47,11 @@ public class TransactionService {
         
         if (!transaction.getUserId().equals(userId)) {
             throw new RuntimeException("Unauthorized access to transaction");
+        }
+        
+        // Validate amount
+        if (request.getAmount() == null || request.getAmount() <= 0) {
+            throw new RuntimeException("Transaction amount must be greater than zero");
         }
         
         transaction.setType(request.getType());

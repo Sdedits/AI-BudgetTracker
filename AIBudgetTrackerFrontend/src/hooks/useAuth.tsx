@@ -1,5 +1,5 @@
-import { useState, createContext, useContext, type ReactNode } from 'react';
-import { loginUser as loginApi } from '../services/api';
+import { useState, createContext, useContext, useEffect, type ReactNode } from 'react';
+import { loginUser as loginApi, getProfile } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import type { LoginRequest } from '../types/index';
 
@@ -14,7 +14,35 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+    const [isValidating, setIsValidating] = useState<boolean>(true);
     const navigate = useNavigate();
+
+    // Validate token on mount
+    useEffect(() => {
+        const validateToken = async () => {
+            const storedToken = localStorage.getItem('token');
+            if (!storedToken) {
+                setIsValidating(false);
+                return;
+            }
+
+            try {
+                // Try to fetch profile with the stored token
+                await getProfile(storedToken);
+                // Token is valid
+                setToken(storedToken);
+            } catch (err) {
+                // Token is invalid or expired - clear it
+                console.warn('Stored token is invalid, clearing...');
+                setToken(null);
+                localStorage.removeItem('token');
+            } finally {
+                setIsValidating(false);
+            }
+        };
+
+        validateToken();
+    }, []);
 
     const login = async (credentials: LoginRequest) => {
         try {
@@ -22,7 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const userToken = res.data.token;
             setToken(userToken);
             localStorage.setItem('token', userToken);
-            navigate('/profile');
+            navigate('/dashboard');
         } catch (err) {
             // Normalize and propagate server error message so UI can show friendly messages
             let msg = 'Login failed! Please check your credentials.';
@@ -57,6 +85,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         login,
         logout
     };
+
+    // Show nothing while validating token to avoid flashing wrong UI
+    if (isValidating) {
+        return null;
+    }
 
     return (
         <AuthContext.Provider value={authInfo}>
