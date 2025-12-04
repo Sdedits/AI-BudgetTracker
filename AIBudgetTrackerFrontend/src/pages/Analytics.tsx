@@ -162,11 +162,14 @@ const Analytics: React.FC = () => {
   const totalExpenseYear = incomeExpenseData.reduce((sum, m) => sum + m.expenses, 0);
 
   // --- Data Prep for Prediction Chart ---
-  const predictionChartData = historyMonths.map((monthStr, index) => {
+  // Show last 11 months of history + 1 predicted month = 12 months total
+  const predictionChartData = historyMonths.slice(-11).map((monthStr, index) => {
     const date = new Date(monthStr);
+    const actualIndex = historyMonths.length - 11 + index; // Get the correct index from original array
     return {
         month: isNaN(date.getTime()) ? monthStr : date.toLocaleString('default', { month: 'short' }),
-        amount: historyTotals[index] || 0
+        amount: historyTotals[actualIndex] || 0,
+        isPredicted: false
     };
   });
 
@@ -175,7 +178,7 @@ const Analytics: React.FC = () => {
     const lastDate = new Date(lastMonthStr);
     const nextDate = new Date(lastDate.getFullYear(), lastDate.getMonth() + 1, 1);
     const nextLabel = nextDate.toLocaleString('default', { month: 'short' });
-    predictionChartData.push({ month: nextLabel, amount: prediction });
+    predictionChartData.push({ month: nextLabel, amount: prediction, isPredicted: true });
   }
 
   // --- AI Logic ---
@@ -229,6 +232,27 @@ const Analytics: React.FC = () => {
               {entry.name}: ₹{entry.value.toLocaleString()}
             </p>
           ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const PredictionTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const dataPoint = payload[0]?.payload;
+      const isPredicted = dataPoint?.isPredicted;
+      const value = payload[0]?.value;
+      
+      return (
+        <div className="bg-white p-3 border border-gray-200 shadow-lg rounded-lg">
+          <p className="font-bold text-gray-700 mb-1">{label}</p>
+          <p style={{ color: isPredicted ? COLORS.danger : COLORS.primary }} className="text-sm font-medium">
+            {isPredicted ? 'Predicted Amount' : 'Amount'}: ₹{(value || 0).toLocaleString()}
+          </p>
+          {isPredicted && (
+            <p className="text-xs text-gray-500 mt-1">AI Forecast</p>
+          )}
         </div>
       );
     }
@@ -311,7 +335,7 @@ const Analytics: React.FC = () => {
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3F4F6" />
                                 <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#9CA3AF', fontSize: 11}} />
                                 <YAxis axisLine={false} tickLine={false} tick={{fill: '#9CA3AF', fontSize: 11}} tickFormatter={(v) => `₹${v/1000}k`} />
-                                <Tooltip content={<CustomTooltip />} />
+                                <Tooltip content={<PredictionTooltip />} />
                                 <Line type="monotone" dataKey="amount" stroke={COLORS.primary} strokeWidth={3} dot={{ r: 4, fill: COLORS.primary }} activeDot={{ r: 6 }} />
                                 {prediction !== null && predictionChartData.length > 0 && (
                                     <ReferenceDot 
@@ -363,7 +387,7 @@ const Analytics: React.FC = () => {
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2 bg-pink-100 rounded-lg"><PieChartIcon className="text-pink-600" size={24} /></div>
-                <h2 className="text-xl font-bold text-gray-900">Category Breakdown</h2>
+                <h2 className="text-xl font-bold text-gray-900">Monthly Category Breakdown</h2>
               </div>
               {categoryData.length > 0 ? (
                 <div className="h-[300px] w-full">

@@ -34,6 +34,21 @@ const TEXT_STYLES: { [key: string]: { label: string; subtext: string } } = {
     green: { label: "text-green-100", subtext: "text-green-200" },
 };
 
+const PredictionTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+        const isPredicted = payload[0]?.payload?.isPredicted;
+        return (
+            <div className="bg-white p-3 border border-gray-200 shadow-lg rounded-lg">
+                <p className="font-bold text-gray-700 mb-1">{label}</p>
+                <p className="text-sm font-medium" style={{ color: isPredicted ? '#FF8042' : '#8884d8' }}>
+                    {isPredicted ? 'Predicted Amount' : 'Amount'}: ₹{payload[0].value.toLocaleString()}
+                </p>
+            </div>
+        );
+    }
+    return null;
+};
+
 const Dashboard = () => {
     const [profile, setProfile] = useState<User | null>(null);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -208,11 +223,14 @@ const Dashboard = () => {
         };
     });
 
-    const lineChartData = historyMonths.map((monthStr, index) => {
+    // --- Data Prep for Line Chart with Prediction ---
+    const lineChartData = historyMonths.slice(-11).map((monthStr, index) => {
+        const actualIndex = historyMonths.length - 11 + index;
         const date = new Date(monthStr);
         return {
             month: isNaN(date.getTime()) ? monthStr : date.toLocaleString('default', { month: 'short' }),
-            amount: historyTotals[index] || 0
+            amount: historyTotals[actualIndex] || 0,
+            isPredicted: false
         };
     });
 
@@ -221,7 +239,7 @@ const Dashboard = () => {
         const lastDate = new Date(lastMonthStr);
         const nextDate = new Date(lastDate.getFullYear(), lastDate.getMonth() + 1, 1);
         const nextLabel = nextDate.toLocaleString('default', { month: 'short' });
-        lineChartData.push({ month: nextLabel, amount: prediction });
+        lineChartData.push({ month: nextLabel, amount: prediction, isPredicted: true });
     }
 
     const lastTwelve = incomeExpenseData.slice(Math.max(0, incomeExpenseData.length - 12));
@@ -387,7 +405,7 @@ const Dashboard = () => {
                                             <CartesianGrid strokeDasharray="3 3" />
                                             <XAxis dataKey="month" />
                                             <YAxis />
-                                            <Tooltip formatter={(val: number) => `₹${val.toFixed(2)}`} />
+                                            <Tooltip content={<PredictionTooltip />} />
                                             <Line type="monotone" dataKey="amount" stroke="#8884d8" strokeWidth={3} dot={{ r: 3 }} />
                                             {lineChartData.length > 0 && prediction !== null && (
                                                 <ReferenceDot x={lineChartData[lineChartData.length - 1].month} y={prediction} r={6} fill="#FF8042" stroke="#FF8042" />
@@ -397,6 +415,7 @@ const Dashboard = () => {
                                 </div>
 
                                 <div className="w-full h-80">
+                                    <h4 className="font-semibold mb-2 text-sm text-gray-700">Monthly Category Breakdown</h4>
                                     <ResponsiveContainer>
                                         <PieChart>
                                             <Pie
