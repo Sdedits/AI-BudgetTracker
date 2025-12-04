@@ -36,6 +36,12 @@ const SavingsGoals: React.FC = () => {
 
   const onSubmit = async (data: SavingsGoalRequest) => {
     try {
+      // Validate target amount
+      if (!data.targetAmount || data.targetAmount <= 0) {
+        alert('Target amount must be greater than zero');
+        return;
+      }
+      
       if (selectedGoal) {
         await updateSavingsGoal(selectedGoal.id, data);
       } else {

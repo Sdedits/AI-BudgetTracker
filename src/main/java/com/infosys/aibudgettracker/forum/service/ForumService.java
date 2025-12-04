@@ -34,10 +34,15 @@ public class ForumService {
     private UserRepository userRepository;
 
     public Post createPost(String username, PostRequest req) {
+        // Validate content is not empty
+        if (req.getContent() == null || req.getContent().trim().isEmpty()) {
+            throw new RuntimeException("Post content cannot be empty");
+        }
+        
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
         Post p = new Post();
         p.setUser(user);
-        p.setContent(req.getContent());
+        p.setContent(req.getContent().trim());
         return postRepository.save(p);
     }
 

@@ -20,6 +20,11 @@ public class SavingsGoalService {
     private SavingsGoalRepository savingsGoalRepository;
     
     public SavingsGoalResponse createSavingsGoal(Long userId, SavingsGoalRequest request) {
+        // Validate target amount
+        if (request.getTargetAmount() == null || request.getTargetAmount() <= 0) {
+            throw new RuntimeException("Savings goal target amount must be greater than zero");
+        }
+        
         SavingsGoal goal = new SavingsGoal();
         goal.setUserId(userId);
         goal.setName(request.getName());
@@ -51,6 +56,11 @@ public class SavingsGoalService {
         
         if (!goal.getUserId().equals(userId)) {
             throw new RuntimeException("Unauthorized access to savings goal");
+        }
+        
+        // Validate target amount
+        if (request.getTargetAmount() == null || request.getTargetAmount() <= 0) {
+            throw new RuntimeException("Savings goal target amount must be greater than zero");
         }
         
         goal.setName(request.getName());

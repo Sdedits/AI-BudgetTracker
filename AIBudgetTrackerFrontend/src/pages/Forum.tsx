@@ -51,6 +51,26 @@ const Forum: React.FC = () => {
     loadPosts();
   }, []);
 
+  const handleCreatePost = async () => {
+    // Validate post content is not empty
+    if (!newPostContent.trim()) {
+      alert('Post content cannot be empty');
+      return;
+    }
+    
+    try {
+      const combined = newPostTitle ? `${newPostTitle}\n\n${newPostContent}` : newPostContent;
+      await createForumPost(combined);
+      setNewPostContent('');
+      setNewPostTitle('');
+      setShowNewPost(false);
+      await loadPosts();
+    } catch (error) {
+      console.error('Error creating post:', error);
+      alert('Failed to create post');
+    }
+  };
+
   const loadPosts = async () => {
     try {
       const res = await getForumPosts(0, 50);
@@ -102,24 +122,6 @@ const Forum: React.FC = () => {
       setPosts(mapped);
     } catch (err) {
       console.error('Failed to load forum posts', err);
-    }
-  };
-
-  const handleCreatePost = async () => {
-    if (!newPostContent.trim()) {
-      alert('Please write something to post');
-      return;
-    }
-    try {
-      const combined = newPostTitle ? `${newPostTitle}\n\n${newPostContent}` : newPostContent;
-      await createForumPost(combined);
-      setNewPostTitle('');
-      setNewPostContent('');
-      setShowNewPost(false);
-      await loadPosts();
-    } catch (err) {
-      console.error('Failed to create post', err);
-      alert('Failed to create post. Please try again.');
     }
   };
 

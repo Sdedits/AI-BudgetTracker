@@ -26,6 +26,11 @@ public class BudgetService {
     private TransactionRepository transactionRepository;
     
     public BudgetResponse createBudget(Long userId, BudgetRequest request) {
+        // Validate amount
+        if (request.getAmount() == null || request.getAmount() <= 0) {
+            throw new RuntimeException("Budget amount must be greater than zero");
+        }
+        
         // Check if budget already exists for this category/month/year
         var existing = budgetRepository.findByUserIdAndCategoryAndMonthAndYear(
             userId, request.getCategory(), request.getMonth(), request.getYear());
@@ -58,6 +63,11 @@ public class BudgetService {
         
         if (!budget.getUserId().equals(userId)) {
             throw new RuntimeException("Unauthorized access to budget");
+        }
+        
+        // Validate amount
+        if (request.getAmount() == null || request.getAmount() <= 0) {
+            throw new RuntimeException("Budget amount must be greater than zero");
         }
         
         budget.setAmount(request.getAmount());

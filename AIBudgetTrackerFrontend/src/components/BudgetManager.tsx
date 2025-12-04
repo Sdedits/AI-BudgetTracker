@@ -49,6 +49,12 @@ const BudgetManager: React.FC = () => {
 
   const onSubmit = async (data: BudgetRequest) => {
     try {
+      // Validate amount
+      if (!data.amount || data.amount <= 0) {
+        alert('Budget amount must be greater than zero');
+        return;
+      }
+      
       // Use custom category if "Other" is selected and custom category is provided
       const finalCategory = showCustomCategory && customCategory.trim()
         ? customCategory.trim()
